@@ -1,0 +1,5 @@
+puppet-lint (0.1.4-1) unstable; urgency=low
+
+  * Initial release (Closes: #642518)
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 24 Sep 2011 21:27:54 +0200
