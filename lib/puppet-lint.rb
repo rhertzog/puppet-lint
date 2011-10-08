@@ -1,11 +1,19 @@
+# We're doing this instead of a gem dependency so folks using Puppet
+# from their distro packages don't have to install the gem.
+begin
+  require 'puppet'
+rescue LoadError
+  puts 'Unable to require puppet.  Please gem install puppet and try again.'
+  exit 1
+end
+
 require 'puppet-lint/plugin'
 require 'puppet-lint/plugins'
-require 'puppet'
 
 class PuppetLint::NoCodeError < StandardError; end
 
 class PuppetLint
-  VERSION = '0.1.4'
+  VERSION = '0.1.6'
 
   attr_reader :code, :file
 
