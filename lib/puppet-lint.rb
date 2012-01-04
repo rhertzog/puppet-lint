@@ -10,21 +10,33 @@ end
 require 'puppet-lint/plugin'
 require 'puppet-lint/plugins'
 
+unless String.respond_to?('prepend')
+  class String
+    def prepend(lead)
+      self.replace "#{lead}#{self}"
+    end
+  end
+end
+
 class PuppetLint::NoCodeError < StandardError; end
 
 class PuppetLint
-  VERSION = '0.1.7'
+  VERSION = '0.1.9'
 
   attr_reader :code, :file
 
-  def initialize
+  def initialize(options)
     @data = nil
     @errors = 0
     @warnings = 0
+    @with_filename = options[:with_filename]
+    @path = ''
+    @error_level = options[:error_level]
   end
 
   def file=(path)
     if File.exist? path
+      @path = File.expand_path(path)
       @data = File.read(path)
     end
   end
@@ -34,13 +46,18 @@ class PuppetLint
   end
 
   def report(kind, message)
+    #msg = message
     if kind == :warnings
       @warnings += 1
-      puts "WARNING: #{message}"
+      message.prepend('WARNING: ')
     else
       @errors += 1
-      puts "ERROR: #{message}"
+      message.prepend('ERROR: ')
     end
+    if @with_filename
+      message.prepend("#{@path} - ")
+    end
+    puts message
   end
 
   def errors?
@@ -57,9 +74,16 @@ class PuppetLint
     end
 
     PuppetLint::CheckPlugin.repository.each do |plugin|
-      problems = plugin.new.run(@data)
-      problems[:errors].each { |error| report :errors, error }
-      problems[:warnings].each { |warning| report :warnings, warning }
+      problems = plugin.new.run(@path, @data)
+      case @error_level
+      when :warning
+        problems[:warnings].each { |warning| report :warnings, warning }
+      when :error
+        problems[:errors].each { |error| report :errors, error }
+      else
+        problems[:warnings].each { |warning| report :warnings, warning }
+        problems[:errors].each { |error| report :errors, error }
+      end
     end
   end
 end

@@ -14,7 +14,7 @@ class PuppetLint::Plugins::CheckStrings < PuppetLint::CheckPlugin
     end
   end
 
-  def test(data)
+  def test(path, data)
     l = Puppet::Parser::Lexer.new
     l.string = data
     tokens = l.fullscan
@@ -48,12 +48,25 @@ class PuppetLint::Plugins::CheckStrings < PuppetLint::CheckPlugin
         end
       end
 
+      if token.first == :DQPRE
+        end_of_string_idx = tokens[token_idx..-1].index { |r| r.first == :DQPOST }
+        tokens[token_idx..end_of_string_idx].each do |t|
+          if t.first == :VARIABLE and t.last[:value].match(/-/)
+              warn "variable contains a dash on line #{t.last[:line]}"
+          end
+        end
+      end
+
       if token.first == :SSTRING
         contents = token.last[:value]
         line_no = token.last[:line]
 
         if contents.include? '${'
           error "single quoted string containing a variable found on line #{token.last[:line]}"
+        end
+
+        if ['true', 'false'].include? contents
+          warn "quoted boolean value found on line #{token.last[:line]}"
         end
       end
     end
