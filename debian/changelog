@@ -1,8 +1,9 @@
 puppet-lint (0.1.11-1) unstable; urgency=low
 
   * New upstream relase
+  * Refresh patch "no-require-rubygems"
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 26 Jan 2012 15:05:47 +0100
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 26 Jan 2012 15:33:41 +0100
 
 puppet-lint (0.1.6-1) unstable; urgency=low
 
