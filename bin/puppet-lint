@@ -17,7 +17,6 @@ require 'optparse'
 require 'rubygems'
 require 'puppet-lint'
 
-options = {}
 opts = OptionParser.new do |opts|
   opts.banner = help
 
@@ -26,12 +25,46 @@ opts = OptionParser.new do |opts|
     exit 0
   end
 
-  opts.on("--fail-on-warnings", "Return a non-zero exit status for warnings.") do
-    options[:fail_on_warnings] = true
+  opts.on("--with-filename", "Display the filename before the warning") do
+    PuppetLint.configuration.with_filename = true
   end
+
+  opts.on("--error-level LEVEL", [:all, :warning, :error], "The level of error to return.", "(warning, error, all)") do |el|
+    PuppetLint.configuration.error_level = el
+  end
+
+  opts.on("--fail-on-warnings", "Return a non-zero exit status for warnings.") do
+    PuppetLint.configuration.fail_on_warnings = true
+  end
+
+  opts.on("--log-format FORMAT",
+    "Change the log format.", "Overrides --with-filename.",
+    "The following placeholders can be used:",
+    "%{filename}   - Filename without path.",
+    "%{path}       - Path as provided.",
+    "%{fullpath}   - Full path.",
+    "%{linenumber} - Line number.",
+    "%{kind}       - The kind of message.",
+    "              - (warning, error)",
+    "%{KIND}       - Uppercase version of %{kind}",
+    "%{check}      - Name of the check.",
+    "%{message}    - The message."
+  ) do |format|
+    PuppetLint.configuration.log_format = format
+  end
+
+  opts.separator ""
+  opts.separator "    Disable checks:"
+
+  PuppetLint.configuration.checks.each do |check|
+    opts.on("--no-#{check}-check", "Skip the #{check} check") do
+      PuppetLint.configuration.send("disable_#{check}")
+    end
+  end
+
+  opts.load(File.expand_path("~/.puppet-lintrc")) unless opts.load(".puppet-lintrc")
 end
 
-# Read command line options into `options` hash
 begin
   opts.parse!
 rescue OptionParser::InvalidOption
@@ -51,7 +84,7 @@ begin
   l.file = ARGV[0]
   l.run
 
-  if l.errors? or (l.warnings? and options[:fail_on_warnings])
+  if l.errors? or (l.warnings? and PuppetLint.configuration.fail_on_warnings)
     exit 1
   end
 rescue PuppetLint::NoCodeError
