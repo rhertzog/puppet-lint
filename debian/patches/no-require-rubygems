@@ -1,7 +1,5 @@
-Index: puppet-lint/bin/puppet-lint
-===================================================================
---- puppet-lint.orig/bin/puppet-lint	2011-10-08 15:06:19.198954493 +0200
-+++ puppet-lint/bin/puppet-lint	2011-10-08 15:06:46.018211362 +0200
+--- a/bin/puppet-lint
++++ b/bin/puppet-lint
 @@ -14,7 +14,6 @@
  HELP
  
@@ -9,4 +7,4 @@ Index: puppet-lint/bin/puppet-lint
 -require 'rubygems'
  require 'puppet-lint'
  
- options = {}
+ opts = OptionParser.new do |opts|
