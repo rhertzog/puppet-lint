@@ -1,3 +1,9 @@
+puppet-lint (0.1.12-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 15 Mar 2012 23:51:13 +0100
+
 puppet-lint (0.1.11-1) unstable; urgency=low
 
   * New upstream relase
