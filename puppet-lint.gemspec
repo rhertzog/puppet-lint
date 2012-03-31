@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'puppet-lint'
-  s.version = '0.1.12'
+  s.version = '0.1.13'
   s.homepage = 'https://github.com/rodjek/puppet-lint/'
   s.summary = 'Ensure your Puppet manifests conform with the Puppetlabs style guide'
   s.description = 'Checks your Puppet manifests against the Puppetlabs
@@ -8,7 +8,9 @@ Gem::Specification.new do |s|
 
   s.executables = ['puppet-lint']
   s.files = [
+    '.travis.yml',
     'bin/puppet-lint',
+    'Gemfile',
     'lib/puppet-lint/configuration.rb',
     'lib/puppet-lint/plugin.rb',
     'lib/puppet-lint/plugins/check_classes.rb',
