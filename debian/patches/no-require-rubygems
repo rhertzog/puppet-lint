@@ -1,5 +1,7 @@
---- a/bin/puppet-lint
-+++ b/bin/puppet-lint
+From: Stig Sandbeck Mathisen <ssm@debian.org>
+Subject: Do not require rubygems for building and testing
+--- puppet-lint.orig/bin/puppet-lint
++++ puppet-lint/bin/puppet-lint
 @@ -14,7 +14,6 @@
  HELP
  
