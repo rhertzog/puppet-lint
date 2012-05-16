@@ -1,3 +1,12 @@
+puppet-lint (0.1.13-1~bpo60+1) squeeze-backports; urgency=low
+
+  * Rebuild for squeeze-backports.
+  * Lower versioned dependency on gem2deb to 2.7~ as that's sufficient and
+    Stig told me that 2.9 was put there by gem2deb on package creation.
+  * Add myself to uploaders.
+
+ -- Holger Levsen <holger@debian.org>  Wed, 16 May 2012 15:38:19 +0200
+
 puppet-lint (0.1.13-1) unstable; urgency=low
 
   * Imported Upstream version 0.1.13
