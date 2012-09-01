@@ -1,4 +1,4 @@
-puppet-lint (0.1.13-2) UNRELEASED; urgency=low
+puppet-lint (0.1.13-2) unstable; urgency=low
 
   [ gregor herrmann ]
   * Fix "puppet-lint not working with ruby1.9.1": restrict package to
@@ -7,7 +7,7 @@ puppet-lint (0.1.13-2) UNRELEASED; urgency=low
   [ Stig Sandbeck Mathisen ]
   * Add patch description
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 01 Sep 2012 08:42:23 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 01 Sep 2012 08:52:45 +0200
 
 puppet-lint (0.1.13-1) unstable; urgency=low
 
