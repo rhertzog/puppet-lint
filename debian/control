@@ -9,12 +9,12 @@ Standards-Version: 3.9.3
 Vcs-Git: git://anonscm.debian.org/pkg-puppet/puppet-lint.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-puppet/puppet-lint.git;a=summary
 Homepage: https://github.com/rodjek/puppet-lint/
-XS-Ruby-Versions: all
+XS-Ruby-Versions: ruby1.8
 
 Package: puppet-lint
 Architecture: all
 XB-Ruby-Versions: ${ruby:Versions}
-Depends: ${shlibs:Depends}, ${misc:Depends}, ruby | ruby-interpreter,
+Depends: ${shlibs:Depends}, ${misc:Depends}, ruby1.8,
          puppet-common
 Suggests: rake
 Description: check puppet manifests for style guide conformity
