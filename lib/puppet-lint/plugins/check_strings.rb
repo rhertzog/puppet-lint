@@ -1,106 +1,96 @@
 class PuppetLint::Plugins::CheckStrings < PuppetLint::CheckPlugin
-  class ::Puppet::Parser::Lexer
-    class TokenList
-      def del_token(token)
-        @tokens.delete(token)
-      end
-    end
-
-    TOKENS.add_tokens("<single quotes string>" => :SSTRING)
-    TOKENS.del_token(:SQUOTE)
-
-    if Puppet::PUPPETVERSION =~ /^0\.2/
-      TOKENS.add_token :SQUOTE, "'" do |lexer, value|
-        value = lexer.slurpstring(value)
-        [TOKENS[:SSTRING], value]
-      end
-    else
-      TOKENS.add_token :SQUOTE, "'" do |lexer, value|
-        [ TOKENS[:SSTRING], lexer.slurpstring(value,["'"],:ignore_invalid_escapes).first ]
-      end
-    end
-  end
-
+  # Public: Check the manifest tokens for any double quoted strings that don't
+  # contain any variables or common escape characters and record a warning for
+  # each instance found.
+  #
+  # Returns nothing.
   check 'double_quoted_strings' do
-    tokens.each_index do |token_idx|
-      token = tokens[token_idx]
-
-      if token.first == :STRING
-        unless token.last[:value].include? "\t" or token.last[:value].include? "\n"
-          notify :warning, :message =>  "double quoted string containing no variables", :linenumber => token.last[:line]
-        end
-      elsif token.first == :DQTEXT
-        unless token.last[:value].include? "\\t" or token.last[:value].include? "\\n" or token.last[:value] =~ /[^\\]?\$\{?/
-          notify :warning, :message =>  "double quoted string containing no variables", :linenumber => token.last[:line]
-        end
-      end
+    tokens.select { |r|
+      r.type == :STRING
+    }.each { |r|
+      r.value.gsub!(' '*r.column, "\n")
+    }.select { |r|
+      r.value[/(\t|\\t|\n|\\n)/].nil?
+    }.each do |token|
+      notify :warning, {
+        :message    => 'double quoted string containing no variables',
+        :linenumber => token.line,
+        :column     => token.column,
+      }
     end
   end
 
+  # Public: Check the manifest tokens for double quoted strings that contain
+  # a single variable only and record a warning for each instance found.
+  #
+  # Returns nothing.
   check 'only_variable_string' do
     tokens.each_index do |token_idx|
       token = tokens[token_idx]
 
-      if token.first == :DQPRE and token.last[:value] == ""
-        if tokens[token_idx + 1].first == :VARIABLE
-          if tokens[token_idx + 2].first == :DQPOST and tokens[token_idx + 2].last[:value] == ""
-            notify :warning, :message =>  "string containing only a variable", :linenumber => tokens[token_idx + 1].last[:line]
-          end
-        end
-      end
-      if token.first == :DQTEXT and token.last[:value] =~ /\A\$\{.+\}\Z/
-        notify :warning, :message =>  "string containing only a variable", :linenumber => token.last[:line]
-      end
-    end
-  end
-
-  check 'variables_not_enclosed' do
-    tokens.each_index do |token_idx|
-      token = tokens[token_idx]
-
-      if token.first == :DQPRE
-        end_of_string_idx = tokens[token_idx..-1].index { |r| r.first == :DQPOST }
-        tokens[token_idx..end_of_string_idx].each do |t|
-          if t.first == :VARIABLE
-            line = data.split("\n")[t.last[:line] - 1]
-            if line.is_a? String and line.include? "$#{t.last[:value]}"
-              notify :warning, :message =>  "variable not enclosed in {}", :linenumber => t.last[:line]
+      if token.type == :DQPRE and token.value == ''
+        if {:VARIABLE => true, :UNENC_VARIABLE => true}.include? tokens[token_idx + 1].type
+          if tokens[token_idx + 2].type == :DQPOST
+            if tokens[token_idx + 2].value == ''
+              notify :warning, {
+                :message    => 'string containing only a variable',
+                :linenumber => tokens[token_idx + 1].line,
+                :column     => tokens[token_idx + 1].column,
+              }
             end
           end
         end
-      elsif token.first == :DQTEXT and token.last[:value] =~ /\$\w+/
-        notify :warning, :message =>  "variable not enclosed in {}", :linenumber => token.last[:line]
       end
     end
   end
 
+  # Public: Check the manifest tokens for any variables in a string that have
+  # not been enclosed by braces ({}) and record a warning for each instance
+  # found.
+  #
+  # Returns nothing.
+  check 'variables_not_enclosed' do
+    tokens.select { |r|
+      r.type == :UNENC_VARIABLE
+    }.each do |token|
+      notify :warning, {
+        :message    => 'variable not enclosed in {}',
+        :linenumber => token.line,
+        :column     => token.column,
+      }
+    end
+  end
+
+  # Public: Check the manifest tokens for any single quoted strings containing
+  # a enclosed variable and record an error for each instance found.
+  #
+  # Returns nothing.
   check 'single_quote_string_with_variables' do
-    tokens.each_index do |token_idx|
-      token = tokens[token_idx]
-
-      if token.first == :SSTRING
-        contents = token.last[:value]
-        line_no = token.last[:line]
-
-        if contents.include? '${'
-          notify :error, :message =>  "single quoted string containing a variable found", :linenumber => token.last[:line]
-        end
-      end
+    tokens.select { |r|
+      r.type == :SSTRING && r.value.include?('${')
+    }.each do |token|
+      notify :error, {
+        :message    => 'single quoted string containing a variable found',
+        :linenumber => token.line,
+        :column     => token.column,
+      }
     end
   end
 
+  # Public: Check the manifest tokens for any double or single quoted strings
+  # containing only a boolean value and record a warning for each instance
+  # found.
+  #
+  # Returns nothing.
   check 'quoted_booleans' do
-    tokens.each_index do |token_idx|
-      token = tokens[token_idx]
-
-      if token.first == :SSTRING
-        contents = token.last[:value]
-        line_no = token.last[:line]
-
-        if ['true', 'false'].include? contents
-          notify :warning, :message =>  "quoted boolean value found", :linenumber => token.last[:line]
-        end
-      end
+    tokens.select { |r|
+      {:STRING => true, :SSTRING => true}.include?(r.type) && %w{true false}.include?(r.value)
+    }.each do |token|
+      notify :warning, {
+        :message    => 'quoted boolean value found',
+        :linenumber => token.line,
+        :column     => token.column,
+      }
     end
   end
 end
