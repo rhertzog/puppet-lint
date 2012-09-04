@@ -112,7 +112,7 @@ ERROR: mymodule::myclass not in autoload module layout on line X
 
 Puppet attempts to autoload only the required manifests for the resources and
 classes specified in your manifests.  In order to do this, the autoloader
-expects your manifests to be layed out on disk in a particular format.  For
+expects your manifests to be laid out on disk in a particular format.  For
 example, when you use `mymodule::myclass` in your manifests, Puppet will
 attempt to read `<modulepath>/mymodule/manifests/myclass.pp`.  The only
 exception to this is when you reference `mymodule` itself (without any
@@ -230,11 +230,11 @@ Placeholder
 ### puppet-lint
 
 You can disable any of the checks when running the `puppet-lint` command by
-adding a `--disable-<check name>` flag to the command.  For example, if you
+adding a `--no-<check name>-check` flag to the command.  For example, if you
 wanted to skip the 80 character check, you would run
 
 ```
-puppet-lint --disable-80chars /path/to/my/manifest.pp
+puppet-lint --no-80chars-check /path/to/my/manifest.pp
 ```
 
 puppet-lint will also check for a `.puppet-lintrc` file in the current
@@ -243,8 +243,15 @@ wanted to always skip the hard tab character check, you could create
 `~./puppet-lintrc` containing
 
 ```
---disable-hard_tabs
+--no-hard_tabs-check
 ```
+
+For a list of all the flags just type:
+
+```
+puppet-lint --help
+```
+
 
 ### Rake task
 
@@ -253,13 +260,20 @@ task.  Simply add the following line after the `require` statement in your
 `Rakefile`.
 
 ``` ruby
-PuppetLint.configuration.send("disable_<check name")
+PuppetLint.configuration.send("disable_<check name>")
 ```
 
 So, to disable the 80 character check, you would add:
 
 ``` ruby
 PuppetLint.configuration.send("disable_80chars")
+```
+
+The Rake task also supports ignoring certain paths
+from being linted:
+
+``` ruby
+PuppetLint.configuration.ignore_paths = ["vendor/**/*.pp"]
 ```
 
 ## Reporting bugs or incorrect results

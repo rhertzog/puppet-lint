@@ -1,120 +1,197 @@
---- !ruby/object:Gem::Specification 
+--- !ruby/object:Gem::Specification
 name: puppet-lint
-version: !ruby/object:Gem::Version 
-  hash: 1
+version: !ruby/object:Gem::Version
+  version: 0.2.1
   prerelease: 
-  segments: 
-  - 0
-  - 1
-  - 13
-  version: 0.1.13
 platform: ruby
-authors: 
+authors:
 - Tim Sharpe
 autorequire: 
 bindir: bin
 cert_chain: []
-
-date: 2012-03-26 00:00:00 +11:00
-default_executable: 
-dependencies: 
-- !ruby/object:Gem::Dependency 
+date: 2012-08-27 00:00:00.000000000 Z
+dependencies:
+- !ruby/object:Gem::Dependency
   name: rspec
-  prerelease: false
-  requirement: &id001 !ruby/object:Gem::Requirement 
+  requirement: !ruby/object:Gem::Requirement
     none: false
-    requirements: 
-    - - ">="
-      - !ruby/object:Gem::Version 
-        hash: 3
-        segments: 
-        - 0
-        version: "0"
+    requirements:
+    - - ! '>='
+      - !ruby/object:Gem::Version
+        version: '0'
   type: :development
-  version_requirements: *id001
-- !ruby/object:Gem::Dependency 
+  prerelease: false
+  version_requirements: !ruby/object:Gem::Requirement
+    none: false
+    requirements:
+    - - ! '>='
+      - !ruby/object:Gem::Version
+        version: '0'
+- !ruby/object:Gem::Dependency
   name: rdoc
-  prerelease: false
-  requirement: &id002 !ruby/object:Gem::Requirement 
+  requirement: !ruby/object:Gem::Requirement
     none: false
-    requirements: 
-    - - ">="
-      - !ruby/object:Gem::Version 
-        hash: 3
-        segments: 
-        - 0
-        version: "0"
+    requirements:
+    - - ! '>='
+      - !ruby/object:Gem::Version
+        version: '0'
   type: :development
-  version_requirements: *id002
-description: |-
-  Checks your Puppet manifests against the Puppetlabs
-    style guide and alerts you to any discrepancies.
+  prerelease: false
+  version_requirements: !ruby/object:Gem::Requirement
+    none: false
+    requirements:
+    - - ! '>='
+      - !ruby/object:Gem::Version
+        version: '0'
+- !ruby/object:Gem::Dependency
+  name: rcov
+  requirement: !ruby/object:Gem::Requirement
+    none: false
+    requirements:
+    - - ! '>='
+      - !ruby/object:Gem::Version
+        version: '0'
+  type: :development
+  prerelease: false
+  version_requirements: !ruby/object:Gem::Requirement
+    none: false
+    requirements:
+    - - ! '>='
+      - !ruby/object:Gem::Version
+        version: '0'
+description: ! "Checks your Puppet manifests against the Puppetlabs\n  style guide
+  and alerts you to any discrepancies."
 email: tim@sharpe.id.au
-executables: 
+executables:
 - puppet-lint
 extensions: []
-
 extra_rdoc_files: []
-
-files: 
+files:
+- .gitignore
 - .travis.yml
-- bin/puppet-lint
 - Gemfile
+- LICENSE
+- README.md
+- Rakefile
+- bin/puppet-lint
+- lib/puppet-lint.rb
+- lib/puppet-lint/bin.rb
 - lib/puppet-lint/configuration.rb
+- lib/puppet-lint/lexer.rb
+- lib/puppet-lint/lexer/token.rb
 - lib/puppet-lint/plugin.rb
+- lib/puppet-lint/plugins.rb
 - lib/puppet-lint/plugins/check_classes.rb
+- lib/puppet-lint/plugins/check_comments.rb
 - lib/puppet-lint/plugins/check_conditionals.rb
+- lib/puppet-lint/plugins/check_documentation.rb
 - lib/puppet-lint/plugins/check_resources.rb
 - lib/puppet-lint/plugins/check_strings.rb
 - lib/puppet-lint/plugins/check_variables.rb
 - lib/puppet-lint/plugins/check_whitespace.rb
-- lib/puppet-lint/plugins.rb
 - lib/puppet-lint/tasks/puppet-lint.rb
-- lib/puppet-lint.rb
-- LICENSE
+- lib/puppet-lint/version.rb
 - puppet-lint.gemspec
-- Rakefile
-- README.md
-- spec/puppet-lint/check_classes_spec.rb
-- spec/puppet-lint/check_conditionals_spec.rb
-- spec/puppet-lint/check_resources_spec.rb
-- spec/puppet-lint/check_strings_spec.rb
-- spec/puppet-lint/check_variables_spec.rb
-- spec/puppet-lint/check_whitespace_spec.rb
+- spec/fixtures/test/manifests/fail.pp
+- spec/fixtures/test/manifests/init.pp
+- spec/fixtures/test/manifests/warning.pp
+- spec/puppet-lint/bin_spec.rb
+- spec/puppet-lint/configuration_spec.rb
+- spec/puppet-lint/lexer/token_spec.rb
+- spec/puppet-lint/lexer_spec.rb
+- spec/puppet-lint/plugins/check_classes/autoloader_layout_spec.rb
+- spec/puppet-lint/plugins/check_classes/inherits_across_namespaces_spec.rb
+- spec/puppet-lint/plugins/check_classes/names_containing_dash_spec.rb
+- spec/puppet-lint/plugins/check_classes/nested_classes_or_defines_spec.rb
+- spec/puppet-lint/plugins/check_classes/parameter_order_spec.rb
+- spec/puppet-lint/plugins/check_classes/parameterised_classes_spec.rb
+- spec/puppet-lint/plugins/check_classes/right_to_left_relationship_spec.rb
+- spec/puppet-lint/plugins/check_classes/variable_scope_spec.rb
+- spec/puppet-lint/plugins/check_comments/slash_comments_spec.rb
+- spec/puppet-lint/plugins/check_comments/star_comments_spec.rb
+- spec/puppet-lint/plugins/check_conditionals/case_without_default_spec.rb
+- spec/puppet-lint/plugins/check_conditionals/selector_inside_resource_spec.rb
+- spec/puppet-lint/plugins/check_documentation/documentation_spec.rb
+- spec/puppet-lint/plugins/check_resources/duplicate_params_spec.rb
+- spec/puppet-lint/plugins/check_resources/ensure_first_param_spec.rb
+- spec/puppet-lint/plugins/check_resources/ensure_not_symlink_target_spec.rb
+- spec/puppet-lint/plugins/check_resources/file_mode_spec.rb
+- spec/puppet-lint/plugins/check_resources/unquoted_file_mode_spec.rb
+- spec/puppet-lint/plugins/check_resources/unquoted_resource_title_spec.rb
+- spec/puppet-lint/plugins/check_strings/double_quoted_strings_spec.rb
+- spec/puppet-lint/plugins/check_strings/only_variable_string_spec.rb
+- spec/puppet-lint/plugins/check_strings/quoted_booleans_spec.rb
+- spec/puppet-lint/plugins/check_strings/single_quote_string_with_variables_spec.rb
+- spec/puppet-lint/plugins/check_strings/variables_not_enclosed_spec.rb
+- spec/puppet-lint/plugins/check_variables/variable_contains_dash_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/2sp_soft_tabs_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/80chars_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/arrow_alignment_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/hard_tabs_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/trailing_whitespace_spec.rb
+- spec/puppet-lint_spec.rb
 - spec/spec_helper.rb
-has_rdoc: true
 homepage: https://github.com/rodjek/puppet-lint/
 licenses: []
-
 post_install_message: 
 rdoc_options: []
-
-require_paths: 
+require_paths:
 - lib
-required_ruby_version: !ruby/object:Gem::Requirement 
+required_ruby_version: !ruby/object:Gem::Requirement
   none: false
-  requirements: 
-  - - ">="
-    - !ruby/object:Gem::Version 
-      hash: 3
-      segments: 
-      - 0
-      version: "0"
-required_rubygems_version: !ruby/object:Gem::Requirement 
+  requirements:
+  - - ! '>='
+    - !ruby/object:Gem::Version
+      version: '0'
+required_rubygems_version: !ruby/object:Gem::Requirement
   none: false
-  requirements: 
-  - - ">="
-    - !ruby/object:Gem::Version 
-      hash: 3
-      segments: 
-      - 0
-      version: "0"
+  requirements:
+  - - ! '>='
+    - !ruby/object:Gem::Version
+      version: '0'
 requirements: []
-
 rubyforge_project: 
-rubygems_version: 1.6.2
+rubygems_version: 1.8.23
 signing_key: 
 specification_version: 3
 summary: Ensure your Puppet manifests conform with the Puppetlabs style guide
-test_files: []
-
+test_files:
+- spec/fixtures/test/manifests/fail.pp
+- spec/fixtures/test/manifests/init.pp
+- spec/fixtures/test/manifests/warning.pp
+- spec/puppet-lint/bin_spec.rb
+- spec/puppet-lint/configuration_spec.rb
+- spec/puppet-lint/lexer/token_spec.rb
+- spec/puppet-lint/lexer_spec.rb
+- spec/puppet-lint/plugins/check_classes/autoloader_layout_spec.rb
+- spec/puppet-lint/plugins/check_classes/inherits_across_namespaces_spec.rb
+- spec/puppet-lint/plugins/check_classes/names_containing_dash_spec.rb
+- spec/puppet-lint/plugins/check_classes/nested_classes_or_defines_spec.rb
+- spec/puppet-lint/plugins/check_classes/parameter_order_spec.rb
+- spec/puppet-lint/plugins/check_classes/parameterised_classes_spec.rb
+- spec/puppet-lint/plugins/check_classes/right_to_left_relationship_spec.rb
+- spec/puppet-lint/plugins/check_classes/variable_scope_spec.rb
+- spec/puppet-lint/plugins/check_comments/slash_comments_spec.rb
+- spec/puppet-lint/plugins/check_comments/star_comments_spec.rb
+- spec/puppet-lint/plugins/check_conditionals/case_without_default_spec.rb
+- spec/puppet-lint/plugins/check_conditionals/selector_inside_resource_spec.rb
+- spec/puppet-lint/plugins/check_documentation/documentation_spec.rb
+- spec/puppet-lint/plugins/check_resources/duplicate_params_spec.rb
+- spec/puppet-lint/plugins/check_resources/ensure_first_param_spec.rb
+- spec/puppet-lint/plugins/check_resources/ensure_not_symlink_target_spec.rb
+- spec/puppet-lint/plugins/check_resources/file_mode_spec.rb
+- spec/puppet-lint/plugins/check_resources/unquoted_file_mode_spec.rb
+- spec/puppet-lint/plugins/check_resources/unquoted_resource_title_spec.rb
+- spec/puppet-lint/plugins/check_strings/double_quoted_strings_spec.rb
+- spec/puppet-lint/plugins/check_strings/only_variable_string_spec.rb
+- spec/puppet-lint/plugins/check_strings/quoted_booleans_spec.rb
+- spec/puppet-lint/plugins/check_strings/single_quote_string_with_variables_spec.rb
+- spec/puppet-lint/plugins/check_strings/variables_not_enclosed_spec.rb
+- spec/puppet-lint/plugins/check_variables/variable_contains_dash_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/2sp_soft_tabs_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/80chars_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/arrow_alignment_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/hard_tabs_spec.rb
+- spec/puppet-lint/plugins/check_whitespace/trailing_whitespace_spec.rb
+- spec/puppet-lint_spec.rb
+- spec/spec_helper.rb

@@ -1,4 +1,25 @@
+require 'rspec/autorun'
 require 'puppet-lint'
+
+module RSpec
+  module LintExampleGroup
+    def subject
+      klass = PuppetLint::Checks.new
+      fileinfo = {}
+      fileinfo[:fullpath] = self.respond_to?(:fullpath) ? fullpath : ''
+      klass.load_data(fileinfo, code)
+      klass.send("lint_check_#{self.class.top_level_description}")
+      klass
+    end
+  end
+end
+
+RSpec.configure do |c|
+  c.mock_framework = :rspec
+  c.include RSpec::LintExampleGroup, :type => :lint, :example_group => {
+    :file_path => Regexp.compile(%w{spec puppet-lint plugins}.join('[\\\/]'))
+  }
+end
 
 #class PuppetLint::Warning < Exception; end
 #class PuppetLint::Error < Exception; end
@@ -82,19 +103,24 @@ RSpec::Matchers.define :only_have_problem do |filter|
 
   match do |actual|
     res = filter_array_of_hashes(actual, filter)
-    res.length == actual.length
+    res.length == actual.length && res.length == 1
   end
 
   failure_message_for_should do |problems|
-    left = problems - filter_array_of_hashes(actual, filter)
-    message = "There were problems not matching filter."
-    message << "
-    * filter = #{filter.inspect}
-    * unmatched = [
-    "
-    left.each { |prob| message << "    #{prob.inspect}," }
-    message << "
-      ]"
+    filtered_problems = filter_array_of_hashes(actual, filter)
+    if filtered_problems.length > 1
+      message = "Multiple problems found matching the filter."
+    else
+      left = problems - filter_array_of_hashes(actual, filter)
+      message = "There were problems not matching filter."
+      message << "
+      * filter = #{filter.inspect}
+      * unmatched = [
+      "
+      left.each { |prob| message << "    #{prob.inspect}," }
+      message << "
+        ]"
+    end
     message
   end
 
@@ -107,3 +133,4 @@ RSpec::Matchers.define :only_have_problem do |filter|
   end
 
 end
+

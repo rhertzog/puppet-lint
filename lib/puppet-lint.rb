@@ -1,14 +1,8 @@
-# We're doing this instead of a gem dependency so folks using Puppet
-# from their distro packages don't have to install the gem.
-begin
-  require 'puppet'
-rescue LoadError
-  puts 'Unable to require puppet.  Please gem install puppet and try again.'
-  exit 1
-end
-
+require 'puppet-lint/version'
+require 'puppet-lint/lexer'
 require 'puppet-lint/configuration'
 require 'puppet-lint/plugin'
+require 'puppet-lint/bin'
 
 unless String.respond_to?('prepend')
   class String
@@ -74,9 +68,7 @@ end
 class PuppetLint::NoCodeError < StandardError; end
 
 class PuppetLint
-  VERSION = '0.1.12'
-
-  attr_reader :code, :file
+  attr_reader :data
 
   def initialize
     @data = nil
@@ -134,7 +126,7 @@ class PuppetLint
       end
     end
   end
-  
+
   def errors?
     @statistics[:error] != 0
   end
@@ -143,27 +135,16 @@ class PuppetLint
     @statistics[:warning] != 0
   end
 
-  def checks
-    PuppetLint::CheckPlugin.repository.map do |plugin|
-      plugin.new.checks
-    end.flatten
-  end
-
   def run
     if @data.nil?
       raise PuppetLint::NoCodeError
     end
 
-    PuppetLint::CheckPlugin.repository.each do |plugin|
-      report plugin.new.run(@fileinfo, @data)
-    end
+    report PuppetLint::Checks.new.run(@fileinfo, @data)
   end
 end
 
 # Default configuration options
-PuppetLint.configuration.fail_on_warnings = false
-PuppetLint.configuration.error_level = :all
-PuppetLint.configuration.with_filename = false
-PuppetLint.configuration.log_format = ''
+PuppetLint.configuration.defaults
 
 require 'puppet-lint/plugins'

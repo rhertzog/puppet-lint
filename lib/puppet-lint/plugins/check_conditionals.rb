@@ -1,14 +1,22 @@
 class PuppetLint::Plugins::CheckConditionals < PuppetLint::CheckPlugin
+  # Public: Test the manifest tokens for any selectors embedded within resource
+  # declarations and record a warning for each instance found.
+  #
+  # Returns nothing.
   check 'selector_inside_resource' do
     resource_indexes.each do |resource|
       resource_tokens = tokens[resource[:start]..resource[:end]]
 
-      resource_tokens.each_index do |resource_token_idx|
-        if resource_tokens[resource_token_idx].first == :FARROW
-          if resource_tokens[resource_token_idx + 1].first == :VARIABLE
-            unless resource_tokens[resource_token_idx + 2].nil?
-              if resource_tokens[resource_token_idx + 2].first == :QMARK
-                notify :warning, :message =>  "selector inside resource block", :linenumber => resource_tokens[resource_token_idx].last[:line]
+      resource_tokens.each do |token|
+        if token.type == :FARROW
+          if token.next_code_token.type == :VARIABLE
+            unless token.next_code_token.next_code_token.nil?
+              if token.next_code_token.next_code_token.type == :QMARK
+                notify :warning, {
+                  :message    => 'selector inside resource block',
+                  :linenumber => token.line,
+                  :column     => token.column,
+                }
               end
             end
           end
@@ -17,26 +25,23 @@ class PuppetLint::Plugins::CheckConditionals < PuppetLint::CheckPlugin
     end
   end
 
+  # Public: Test the manifest tokens for any case statements that do not
+  # contain a "default" case and record a warning for each instance found.
+  #
+  # Returns nothing.
   check 'case_without_default' do
     case_indexes = []
 
     tokens.each_index do |token_idx|
-      if tokens[token_idx].first == :COLON
-        # gather a list of start and end indexes for resource attribute blocks
-        if tokens[token_idx+1].first != :LBRACE
-          resource_indexes << {:start => token_idx+1, :end => tokens[token_idx+1..-1].index { |r| [:SEMIC, :RBRACE].include? r.first }+token_idx}
-        end
-      end
-
-      if tokens[token_idx].first == :CASE
-        lbrace_count = 0
-        tokens[token_idx+1..-1].each_index do |case_token_idx|
-          idx = case_token_idx + token_idx
-          if tokens[idx].first == :LBRACE
-            lbrace_count += 1
-          elsif tokens[idx].first == :RBRACE
-            lbrace_count -= 1
-            if lbrace_count == 0
+      if tokens[token_idx].type == :CASE
+        depth = 0
+        tokens[(token_idx + 1)..-1].each_index do |case_token_idx|
+          idx = case_token_idx + token_idx + 1
+          if tokens[idx].type == :LBRACE
+            depth += 1
+          elsif tokens[idx].type == :RBRACE
+            depth -= 1
+            if depth == 0
               case_indexes << {:start => token_idx, :end => idx}
               break
             end
@@ -48,8 +53,12 @@ class PuppetLint::Plugins::CheckConditionals < PuppetLint::CheckPlugin
     case_indexes.each do |kase|
       case_tokens = tokens[kase[:start]..kase[:end]]
 
-      unless case_tokens.index { |r| r.first == :DEFAULT }
-        notify :warning, :message =>  "case statement without a default case", :linenumber => case_tokens.first.last[:line]
+      unless case_tokens.index { |r| r.type == :DEFAULT }
+        notify :warning, {
+          :message    => 'case statement without a default case',
+          :linenumber => case_tokens.first.line,
+          :column     => case_tokens.first.column,
+        }
       end
     end
   end
