@@ -1,6 +1,7 @@
-puppet-lint (0.2.1-1) UNRELEASED; urgency=low
+puppet-lint (0.2.1-1) experimental; urgency=low
 
   * Imported upstream version 0.2.1
+  * Remove patch "no-require-rubygems"
 
  -- Stig Sandbeck Mathisen <ssm@debian.org>  Tue, 04 Sep 2012 09:11:04 +0200
 
