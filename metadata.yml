@@ -1,7 +1,7 @@
 --- !ruby/object:Gem::Specification
 name: puppet-lint
 version: !ruby/object:Gem::Version
-  version: 0.2.1
+  version: 0.3.2
   prerelease: 
 platform: ruby
 authors:
@@ -9,7 +9,7 @@ authors:
 autorequire: 
 bindir: bin
 cert_chain: []
-date: 2012-08-27 00:00:00.000000000 Z
+date: 2012-10-19 00:00:00.000000000 Z
 dependencies:
 - !ruby/object:Gem::Dependency
   name: rspec
@@ -94,17 +94,19 @@ files:
 - puppet-lint.gemspec
 - spec/fixtures/test/manifests/fail.pp
 - spec/fixtures/test/manifests/init.pp
+- spec/fixtures/test/manifests/malformed.pp
 - spec/fixtures/test/manifests/warning.pp
 - spec/puppet-lint/bin_spec.rb
 - spec/puppet-lint/configuration_spec.rb
 - spec/puppet-lint/lexer/token_spec.rb
 - spec/puppet-lint/lexer_spec.rb
 - spec/puppet-lint/plugins/check_classes/autoloader_layout_spec.rb
+- spec/puppet-lint/plugins/check_classes/class_inherits_from_params_class_spec.rb
+- spec/puppet-lint/plugins/check_classes/class_parameter_defaults_spec.rb
 - spec/puppet-lint/plugins/check_classes/inherits_across_namespaces_spec.rb
 - spec/puppet-lint/plugins/check_classes/names_containing_dash_spec.rb
 - spec/puppet-lint/plugins/check_classes/nested_classes_or_defines_spec.rb
 - spec/puppet-lint/plugins/check_classes/parameter_order_spec.rb
-- spec/puppet-lint/plugins/check_classes/parameterised_classes_spec.rb
 - spec/puppet-lint/plugins/check_classes/right_to_left_relationship_spec.rb
 - spec/puppet-lint/plugins/check_classes/variable_scope_spec.rb
 - spec/puppet-lint/plugins/check_comments/slash_comments_spec.rb
@@ -158,17 +160,19 @@ summary: Ensure your Puppet manifests conform with the Puppetlabs style guide
 test_files:
 - spec/fixtures/test/manifests/fail.pp
 - spec/fixtures/test/manifests/init.pp
+- spec/fixtures/test/manifests/malformed.pp
 - spec/fixtures/test/manifests/warning.pp
 - spec/puppet-lint/bin_spec.rb
 - spec/puppet-lint/configuration_spec.rb
 - spec/puppet-lint/lexer/token_spec.rb
 - spec/puppet-lint/lexer_spec.rb
 - spec/puppet-lint/plugins/check_classes/autoloader_layout_spec.rb
+- spec/puppet-lint/plugins/check_classes/class_inherits_from_params_class_spec.rb
+- spec/puppet-lint/plugins/check_classes/class_parameter_defaults_spec.rb
 - spec/puppet-lint/plugins/check_classes/inherits_across_namespaces_spec.rb
 - spec/puppet-lint/plugins/check_classes/names_containing_dash_spec.rb
 - spec/puppet-lint/plugins/check_classes/nested_classes_or_defines_spec.rb
 - spec/puppet-lint/plugins/check_classes/parameter_order_spec.rb
-- spec/puppet-lint/plugins/check_classes/parameterised_classes_spec.rb
 - spec/puppet-lint/plugins/check_classes/right_to_left_relationship_spec.rb
 - spec/puppet-lint/plugins/check_classes/variable_scope_spec.rb
 - spec/puppet-lint/plugins/check_comments/slash_comments_spec.rb

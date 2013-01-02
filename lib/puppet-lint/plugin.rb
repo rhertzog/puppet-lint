@@ -1,9 +1,10 @@
 class PuppetLint::Checks
   attr_reader :problems
+  attr_reader :manifest_lines
 
   def initialize
     @problems = []
-    @default_info = {:check => 'unknown', :linenumber => 0}
+    @default_info = {:check => 'unknown', :linenumber => 0, :column => 0}
 
     PuppetLint.configuration.checks.each do |check|
       method = PuppetLint.configuration.check_method[check]
@@ -35,7 +36,16 @@ class PuppetLint::Checks
 
   def load_data(fileinfo, data)
     lexer = PuppetLint::Lexer.new
-    @tokens = lexer.tokenise(data)
+    begin
+      @tokens = lexer.tokenise(data)
+    rescue PuppetLint::LexerError => e
+      notify :error, {
+        :message => 'Syntax error (try running `puppet parser validate <file>`)',
+        :linenumber => e.line_no,
+        :column => e.column,
+      }
+      @tokens = []
+    end
     @fileinfo = fileinfo
     @data = data
   end

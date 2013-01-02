@@ -710,6 +710,12 @@ describe PuppetLint::Lexer do
       token.type.should == :SSTRING
       token.value.should == ''
     end
+
+    it "should match an empty string ending with \\\\" do
+      token = @lexer.tokenise("'foo\\\\'").first
+      token.type.should == :SSTRING
+      token.value.should == %{foo\\\\}
+    end
   end
 
   context ':REGEX' do
@@ -733,6 +739,14 @@ describe PuppetLint::Lexer do
     it 'should not match chained division' do
       tokens = @lexer.tokenise('$x = $a/$b/$c')
       tokens.select { |r| r.type == :REGEX }.should == []
+    end
+  end
+
+  context ':STRING' do
+    it 'should parse strings with \\\\\\' do
+      expect {
+        @lexer.tokenise("exec { \"/bin/echo \\\\\\\"${environment}\\\\\\\"\": }")
+      }.to_not raise_error(PuppetLint::LexerError)
     end
   end
 end

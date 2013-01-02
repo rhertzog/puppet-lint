@@ -4,7 +4,20 @@ require 'puppet-lint/lexer/token'
 require 'set'
 
 class PuppetLint
-  class LexerError < RuntimeError; end
+  class LexerError < StandardError
+    attr_reader :line_no, :column
+    def initialize(code, offset)
+      chunk = code[0..offset]
+      @line_no = chunk.count("\n") + 1
+      if @line_no == 1
+        @column = chunk.length
+      else
+        @column = chunk.length - chunk.rindex("\n") - 1
+      end
+      @column = 1 if @column == 0
+    end
+  end
+
   class Lexer
     KEYWORDS = {
       'class' => true,
@@ -126,12 +139,12 @@ class PuppetLint
             i += var_name.size + 1
 
           elsif chunk.match(/\A'(.*?)'/m)
-            str_content = StringScanner.new(code[i+1..-1]).scan_until(/(\A|[^\\])'/m)
+            str_content = StringScanner.new(code[i+1..-1]).scan_until(/(\A|[^\\])(\\\\)*'/m)
             tokens << new_token(:SSTRING, str_content[0..-2], :chunk => code[0..i])
             i += str_content.size + 1
 
           elsif chunk.match(/\A"/)
-            str_contents = StringScanner.new(code[i+1..-1]).scan_until(/(\A|[^\\])"/m)
+            str_contents = StringScanner.new(code[i+1..-1]).scan_until(/(\A|[^\\])(\\\\)*"/m)
             _ = code[0..i].split("\n")
             interpolate_string(str_contents, _.count, _.last.length)
             i += str_contents.size + 1
@@ -159,7 +172,7 @@ class PuppetLint
             i += mlcomment_size
 
           elsif chunk.match(/\A\/.*?\//) && possible_regex?
-            str_content = StringScanner.new(code[i+1..-1]).scan_until(/(\A|[^\\])\//m)
+            str_content = StringScanner.new(code[i+1..-1]).scan_until(/(\A|[^\\])(\\\\)*\//m)
             tokens << new_token(:REGEX, str_content[0..-2], :chunk => code[0..i])
             i += str_content.size + 1
 
@@ -181,7 +194,7 @@ class PuppetLint
             i += 1
 
           else
-            raise PuppetLint::LexerError, chunk
+            raise PuppetLint::LexerError.new(code, i)
           end
         end
       end
