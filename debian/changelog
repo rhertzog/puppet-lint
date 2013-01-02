@@ -1,6 +1,7 @@
 puppet-lint (0.3.2-1) UNRELEASED; urgency=low
 
   * New upstream release
+  * Remove puppet-common from Depends, internal parser is used instead
 
  -- Micah Andeson <micah@debian.org>  Wed, 02 Jan 2013 11:25:09 -0500
 

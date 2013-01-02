@@ -14,8 +14,7 @@ XS-Ruby-Versions: all
 Package: puppet-lint
 Architecture: all
 XB-Ruby-Versions: ${ruby:Versions}
-Depends: ${shlibs:Depends}, ${misc:Depends}, ruby | ruby-interpreter,
-         puppet-common
+Depends: ${shlibs:Depends}, ${misc:Depends}, ruby | ruby-interpreter
 Suggests: rake
 Description: check puppet manifests for style guide conformity
  Checks your Puppet manifests against the Puppet Labs style guide and
