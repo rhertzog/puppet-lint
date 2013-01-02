@@ -1,9 +1,10 @@
-puppet-lint (0.3.2-1) UNRELEASED; urgency=low
+puppet-lint (0.3.2-1) experimental; urgency=low
 
+  [ Micah Andeson ]
   * New upstream release
   * Remove puppet-common from Depends, internal parser is used instead
 
- -- Micah Andeson <micah@debian.org>  Wed, 02 Jan 2013 11:25:09 -0500
+ -- Micah Anderson <micah@debian.org>  Wed, 02 Jan 2013 13:03:10 -0500
 
 puppet-lint (0.2.1-1) experimental; urgency=low
 
