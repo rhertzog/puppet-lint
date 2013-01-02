@@ -67,6 +67,13 @@ describe PuppetLint::Bin do
     ].join("\n") }
   end
 
+  context 'when passed a malformed file' do
+    let(:args) { 'spec/fixtures/test/manifests/malformed.pp' }
+
+    its(:exitstatus) { should == 1 }
+    its(:stdout) { should == 'ERROR: Syntax error (try running `puppet parser validate <file>`) on line 1' }
+  end
+
   context 'when limited to errors only' do
     let(:args) { [
       '--error-level', 'error',
@@ -101,6 +108,22 @@ describe PuppetLint::Bin do
 
     its(:exitstatus) { should == 0 }
     its(:stdout) { should match(/optional parameter/) }
+  end
+
+  context 'when asked to provide context to problems' do
+    let(:args) { [
+      '--with-context',
+      'spec/fixtures/test/manifests/warning.pp',
+    ] }
+
+    its(:exitstatus) { should == 0 }
+    its(:stdout) { should == [
+      'WARNING: optional parameter listed before required parameter on line 2',
+      '',
+      "  define test::warning($foo='bar', $baz) { }",
+      '                                   ^',
+    ].join("\n")
+    }
   end
 
   context 'when asked to fail on warnings' do

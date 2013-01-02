@@ -67,7 +67,24 @@ class PuppetLint::Plugins::CheckClasses < PuppetLint::CheckPlugin
     end
   end
 
-  check 'parameterised_classes' do
+  check 'class_inherits_from_params_class' do
+    class_indexes.each do |class_idx|
+      class_tokens = tokens[class_idx[:start]..class_idx[:end]]
+      inherits_idx = class_tokens.index { |r| r.type == :INHERITS }
+      unless inherits_idx.nil?
+        inherited_class_token = class_tokens[inherits_idx].next_code_token
+        if inherited_class_token.value.end_with? '::params'
+          notify :warning, {
+            :message    => 'class inheriting from params class',
+            :linenumber => inherited_class_token.line,
+            :column     => inherited_class_token.column,
+          }
+        end
+      end
+    end
+  end
+
+  check 'class_parameter_defaults' do
     class_indexes.each do |class_idx|
       token_idx = class_idx[:start]
       depth = 0
@@ -91,21 +108,6 @@ class PuppetLint::Plugins::CheckClasses < PuppetLint::CheckPlugin
         end
       end
 
-      class_tokens = tokens[class_idx[:start]..class_idx[:end]].reject { |r|
-        formatting_tokens.include? r.type
-      }
-      inherits_idx = class_tokens.index { |r| r.type == :INHERITS }
-      unless inherits_idx.nil?
-        inherited_class_token = class_tokens[inherits_idx + 1]
-        if inherited_class_token.value.end_with? '::params'
-          notify :warning, {
-            :message    => 'class inheriting from params class',
-            :linenumber => inherited_class_token.line,
-            :column     => inherited_class_token.column,
-          }
-        end
-      end
-
       unless lparen_idx.nil? or rparen_idx.nil?
         param_tokens = tokens[lparen_idx+1..rparen_idx-1].reject { |r|
           formatting_tokens.include? r.type
@@ -114,8 +116,8 @@ class PuppetLint::Plugins::CheckClasses < PuppetLint::CheckPlugin
         paren_stack = []
         param_tokens.each_index do |param_tokens_idx|
           this_token = param_tokens[param_tokens_idx]
-          next_token = param_tokens[param_tokens_idx+1]
-          prev_token = param_tokens[param_tokens_idx-1]
+          next_token = this_token.next_code_token
+          prev_token = this_token.prev_code_token
 
           if this_token.type == :LPAREN
             paren_stack.push(true)
@@ -137,7 +139,8 @@ class PuppetLint::Plugins::CheckClasses < PuppetLint::CheckPlugin
           end
         end
       end
-    end end
+    end
+  end
 
   # Public: Test the manifest tokens for any parameterised classes or defined
   # types that take parameters and record a warning if there are any optional
@@ -215,10 +218,12 @@ class PuppetLint::Plugins::CheckClasses < PuppetLint::CheckPlugin
 
       if inherits_token.type == :INHERITS
         inherited_class_token = inherits_token.next_code_token
+        inherited_module_name = inherited_class_token.value.split('::').reject { |r| r.empty? }.first
+        class_module_name = class_name_token.value.split('::').reject { |r| r.empty? }.first
 
-        unless class_name_token.value =~ /^#{inherited_class_token.value}::/
+        unless class_module_name == inherited_module_name
           notify :warning, {
-            :message    => "class inherits across namespaces",
+            :message    => "class inherits across module namespaces",
             :linenumber => inherited_class_token.line,
             :column     => inherited_class_token.column,
           }

@@ -25,6 +25,10 @@ class PuppetLint::Bin
         return 0
       end
 
+      opts.on('--with-context', 'Show where in the manifest the problem is') do
+        PuppetLint.configuration.with_context = true
+      end
+
       opts.on("--with-filename", "Display the filename before the warning") do
         PuppetLint.configuration.with_filename = true
       end
@@ -63,10 +67,14 @@ class PuppetLint::Bin
       end
 
       opts.load('/etc/puppet-lint.rc')
-      opts.load(File.expand_path('~/.puppet-lint.rc'))
-      if opts.load(File.expand_path('~/.puppet-lintrc'))
-        $stderr.puts 'Depreciated: Found ~/.puppet-lintrc instead of ~/.puppet-lint.rc'
+
+      if ENV['HOME']
+        opts.load(File.expand_path('~/.puppet-lint.rc'))
+        if opts.load(File.expand_path('~/.puppet-lintrc'))
+          $stderr.puts 'Depreciated: Found ~/.puppet-lintrc instead of ~/.puppet-lint.rc'
+        end
       end
+
       opts.load('.puppet-lint.rc')
       if opts.load('.puppet-lintrc')
         $stderr.puts 'Depreciated: Read .puppet-lintrc instead of .puppet-lint.rc'
