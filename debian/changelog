@@ -1,3 +1,9 @@
+puppet-lint (0.3.2-1) UNRELEASED; urgency=low
+
+  * New upstream release
+
+ -- Micah Andeson <micah@debian.org>  Wed, 02 Jan 2013 11:25:09 -0500
+
 puppet-lint (0.2.1-1) experimental; urgency=low
 
   * Imported upstream version 0.2.1
