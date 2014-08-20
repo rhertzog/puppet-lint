@@ -2,12 +2,11 @@
 
 [![Build
 Status](https://secure.travis-ci.org/rodjek/puppet-lint.png)](http://travis-ci.org/rodjek/puppet-lint)
-[![Dependency
-Status](https://gemnasium.com/rodjek/puppet-lint.png)](http://gemnasium.com/rodjek/puppet-lint)
+[![Inline docs](http://inch-ci.org/github/rodjek/puppet-lint.png?branch=master)](http://inch-ci.org/github/rodjek/puppet-lint)
 
 The goal of this project is to implement as many of the recommended Puppet
 style guidelines from the [Puppet Labs style
-guide](http://docs.puppetlabs.com/guides/style_guide.html) as practical.
+guide](http://docs.puppetlabs.com/guides/style_guide.html) as practical. It is not meant to validate syntax. Please use `puppet parser validate` for that.
 
 ## Installation
 
@@ -55,6 +54,8 @@ At the moment, the following tests have been implemented:
 ### Resources
 
  * All resource titles should be quoted.
+   * An exception has been made for resource titles that consist of only
+     a variable standing by itself.
  * If a resource declaration includes an `ensure` attribute, it should be the
    first attribute specified.
  * Symbolic links should be declared by using an ensure value of `link` and
@@ -80,151 +81,6 @@ At the moment, the following tests have been implemented:
  * When using top-scope variables, including facts, Puppet modules should
    explicitly specify the empty namespace.
 
-## Fixing problems
-
-### right_to_left_relationship
-
-```
-WARNING: right-to-left (<-) relationship on line X
-```
-
-While right to left relationships are perfectly valid, it's highly recommended
-that you don't use them as most people think and read from left to right and
-this can lead to confusion.
-
-Bad:
-
-```
-Service['httpd'] <- Package['httpd']
-```
-
-Good:
-
-```
-Package['httpd'] -> Service['httpd']
-```
-
-### autoloader_layout
-
-```
-ERROR: mymodule::myclass not in autoload module layout on line X
-```
-
-Puppet attempts to autoload only the required manifests for the resources and
-classes specified in your manifests.  In order to do this, the autoloader
-expects your manifests to be laid out on disk in a particular format.  For
-example, when you use `mymodule::myclass` in your manifests, Puppet will
-attempt to read `<modulepath>/mymodule/manifests/myclass.pp`.  The only
-exception to this is when you reference `mymodule` itself (without any
-subclass/subtype) in which case it will read
-`<modulepath>/mymodule/manifests/init.pp`.
-
-### parameter_order
-
-```
-WARNING: optional parameter listed before required parameter on line X
-```
-
-In parameterised class and defined type definitions, parameters that are
-required should be listed before optional parameters (those with default
-values).
-
-Bad:
-
-```
-class foo($bar='baz', $gronk) {
-```
-
-Good:
-
-```
-class foo($gronk, $bar='baz') {
-```
-
-### inherits_across_namespaces
-
-Placeholder
-
-### nested_classes_or_defines
-
-Placeholder
-
-### variable_scope
-
-Placeholder
-
-### selector_inside_resource
-
-Placeholder
-
-### case_without_default
-
-Placeholder
-
-### unquoted_resource_title
-
-Placeholder
-
-### ensure_first_param
-
-Placeholder
-
-### unquoted_file_mode
-
-Placeholder
-
-### 4digit_file_mode
-
-Placeholder
-
-### ensure_not_symlink_target
-
-Placeholder
-
-### double_quoted_strings
-
-Placeholder
-
-### only_variable_string
-
-Placeholder
-
-### variables_not_enclosed
-
-Placeholder
-
-### single_quote_string_with_variables
-
-Placeholder
-
-### quoted_booleans
-
-Placeholder
-
-### variable_contains_dash
-
-Placeholder
-
-### hard_tabs
-
-Placeholder
-
-### trailing_whitespace
-
-Placeholder
-
-### 80chars
-
-Placeholder
-
-### 2sp_soft_tabs
-
-Placeholder
-
-### arrow_alignment
-
-Placeholder
-
 ## Disabling checks
 
 ### puppet-lint
@@ -240,7 +96,7 @@ puppet-lint --no-80chars-check /path/to/my/manifest.pp
 puppet-lint will also check for a `.puppet-lint.rc` file in the current
 directory and your home directory and read in flags from there, so if you
 wanted to always skip the hard tab character check, you could create
-`~./puppet-lint.rc` containing
+`~/.puppet-lint.rc` containing
 
 ```
 --no-hard_tabs-check
@@ -251,7 +107,6 @@ For a list of all the flags just type:
 ```
 puppet-lint --help
 ```
-
 
 ### Rake task
 

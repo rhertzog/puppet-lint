@@ -1,17 +1,17 @@
-class PuppetLint::Plugins::CheckVariables < PuppetLint::CheckPlugin
-  # Public: Test the manifest tokens for variables that contain a dash and
-  # record a warning for each instance found.
-  #
-  # Returns nothing.
-  check 'variable_contains_dash' do
+# Public: Test the manifest tokens for variables that contain a dash and
+# record a warning for each instance found.
+PuppetLint.new_check(:variable_contains_dash) do
+  VARIABLE_TYPES = Set[:VARIABLE, :UNENC_VARIABLE]
+
+  def check
     tokens.select { |r|
-      {:VARIABLE => true, :UNENC_VARIABLE => true}.include? r.type
+      VARIABLE_TYPES.include? r.type
     }.each do |token|
-      if token.value.match(/-/)
+      if token.value.gsub(/\[.+?\]/, '').match(/-/)
         notify :warning, {
-          :message    => 'variable contains a dash',
-          :linenumber => token.line,
-          :column     => token.column,
+          :message => 'variable contains a dash',
+          :line    => token.line,
+          :column  => token.column,
         }
       end
     end

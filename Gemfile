@@ -1,7 +1,3 @@
-source :rubygems
+source 'https://rubygems.org'
 
-gem 'rake'
-gem 'rspec'
-gem 'rdoc'
-gem 'ruby-prof'
-gem 'rcov', :platform => :ruby_18
+gemspec
