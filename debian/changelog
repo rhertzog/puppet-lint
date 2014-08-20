@@ -1,3 +1,10 @@
+puppet-lint (1.0.0-1) UNRELEASED; urgency=medium
+
+  * Imported upstream release 1.0.0 (Closes: #758584)
+  * Declare compliance with Debian Policy version 3.9.5
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Wed, 20 Aug 2014 10:06:42 +0200
+
 puppet-lint (0.3.2-2) unstable; urgency=low
 
   * Upload to unstable
