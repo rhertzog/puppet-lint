@@ -9,6 +9,7 @@ Vcs-Git: git://anonscm.debian.org/pkg-puppet/puppet-lint.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-puppet/puppet-lint.git;a=summary
 Homepage: https://github.com/rodjek/puppet-lint/
 XS-Ruby-Versions: all
+Testsuite: autopkgtest
 
 Package: puppet-lint
 Architecture: all

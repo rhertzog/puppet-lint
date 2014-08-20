@@ -10,6 +10,15 @@ Files: debian/*
 Copyright: 2011 Stig Sandbeck Mathisen <ssm@debian.org>
 License: Expat
 
+Files: debian/tests/sharness.sh
+Copyright: 2011-2012 Mathias Lafeldt
+           2005-2012 Git project
+	   2005-2012 Junio C Hamano
+License: GPL-2+
+
+License: GPL-2+
+ See /usr/share/common-licenses/GPL-2
+
 License: Expat
  Copyright (c) 2011 Tim Sharpe
  .
