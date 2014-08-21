@@ -1,8 +1,8 @@
-puppet-lint (1.0.1-1) UNRELEASED; urgency=medium
+puppet-lint (1.0.1-1) unstable; urgency=medium
 
   * Imported upstream release 1.0.1
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 21 Aug 2014 09:46:31 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 21 Aug 2014 09:49:12 +0200
 
 puppet-lint (1.0.0-1) unstable; urgency=medium
 
