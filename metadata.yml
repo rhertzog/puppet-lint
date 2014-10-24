@@ -1,13 +1,13 @@
 --- !ruby/object:Gem::Specification 
 name: puppet-lint
 version: !ruby/object:Gem::Version 
-  hash: 21
+  hash: 19
   prerelease: 
   segments: 
   - 1
-  - 0
   - 1
-  version: 1.0.1
+  - 0
+  version: 1.1.0
 platform: ruby
 authors: 
 - Tim Sharpe
@@ -15,7 +15,7 @@ autorequire:
 bindir: bin
 cert_chain: []
 
-date: 2014-08-20 00:00:00 +10:00
+date: 2014-09-23 00:00:00 -07:00
 default_executable: 
 dependencies: 
 - !ruby/object:Gem::Dependency 
@@ -123,6 +123,8 @@ files:
 - puppet-lint.gemspec
 - spec/fixtures/test/manifests/fail.pp
 - spec/fixtures/test/manifests/ignore.pp
+- spec/fixtures/test/manifests/ignore_multiple_block.pp
+- spec/fixtures/test/manifests/ignore_multiple_line.pp
 - spec/fixtures/test/manifests/ignore_reason.pp
 - spec/fixtures/test/manifests/init.pp
 - spec/fixtures/test/manifests/malformed.pp
@@ -203,6 +205,8 @@ summary: Ensure your Puppet manifests conform with the Puppetlabs style guide
 test_files: 
 - spec/fixtures/test/manifests/fail.pp
 - spec/fixtures/test/manifests/ignore.pp
+- spec/fixtures/test/manifests/ignore_multiple_block.pp
+- spec/fixtures/test/manifests/ignore_multiple_line.pp
 - spec/fixtures/test/manifests/ignore_reason.pp
 - spec/fixtures/test/manifests/init.pp
 - spec/fixtures/test/manifests/malformed.pp
