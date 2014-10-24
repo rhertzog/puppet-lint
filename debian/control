@@ -6,7 +6,7 @@ Uploaders: Stig Sandbeck Mathisen <ssm@debian.org>, Micah Anderson <micah@debian
 Build-Depends: debhelper (>= 7.0.50~), gem2deb (>= 0.2.9~)
 Standards-Version: 3.9.5
 Vcs-Git: git://anonscm.debian.org/pkg-puppet/puppet-lint.git
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-puppet/puppet-lint.git;a=summary
+Vcs-Browser: https://anonscm.debian.org/cgit/pkg-puppet/puppet-lint.git
 Homepage: https://github.com/rodjek/puppet-lint/
 XS-Ruby-Versions: all
 Testsuite: autopkgtest
