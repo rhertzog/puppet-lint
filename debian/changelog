@@ -1,8 +1,10 @@
-puppet-lint (1.1.0-1) UNRELEASED; urgency=medium
+puppet-lint (1.1.0-1) unstable; urgency=medium
 
   * Imported upstream release 1.1.0-1
+  * Update Vcs-Browser URL
+  * Declare compliance with Debian policy 3.9.6
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 24 Oct 2014 20:47:24 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 24 Oct 2014 20:48:54 +0200
 
 puppet-lint (1.0.1-1) unstable; urgency=medium
 
