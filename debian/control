@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Puppet Package Maintainers <pkg-puppet-devel@lists.alioth.debian.org>
 Uploaders: Stig Sandbeck Mathisen <ssm@debian.org>, Micah Anderson <micah@debian.org>
 Build-Depends: debhelper (>= 7.0.50~), gem2deb (>= 0.2.9~)
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 Vcs-Git: git://anonscm.debian.org/pkg-puppet/puppet-lint.git
 Vcs-Browser: https://anonscm.debian.org/cgit/pkg-puppet/puppet-lint.git
 Homepage: https://github.com/rodjek/puppet-lint/
