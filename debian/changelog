@@ -2,6 +2,7 @@ puppet-lint (2.0.2-1) UNRELEASED; urgency=medium
 
   * Non-maintainer upload.
   * Import upstream release 2.0.2
+  * Update debian/copyright
 
  -- Sophie Brun <sophie@freexian.com>  Mon, 12 Sep 2016 15:12:21 +0200
 
