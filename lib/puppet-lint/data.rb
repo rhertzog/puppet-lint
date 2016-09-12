@@ -25,13 +25,23 @@ class PuppetLint::Data
       @resource_indexes = nil
       @class_indexes = nil
       @defined_type_indexes = nil
+      @function_indexes = nil
+      @array_indexes = nil
+      @hash_indexes = nil
+      @defaults_indexes = nil
     end
 
     # Public: Get the tokenised manifest.
     #
     # Returns an Array of PuppetLint::Lexer::Token objects.
     def tokens
-      if caller[0][/`.*'/][1..-2] == 'check'
+      calling_method = begin
+        caller[0][/`.*'/][1..-2]
+      rescue NoMethodError
+        caller[1][/`.*'/][1..-2]
+      end
+
+      if calling_method == 'check'
         @tokens.dup
       else
         @tokens
@@ -100,7 +110,7 @@ class PuppetLint::Data
           if tokens[token_idx].type == :COLON
             next_token = tokens[token_idx].next_code_token
             depth = 1
-            if next_token.type != :LBRACE
+            if next_token && next_token.type != :LBRACE
               tokens[(token_idx + 1)..-1].each_index do |idx|
                 real_idx = token_idx + idx + 1
                 if tokens[real_idx].type == :LBRACE
@@ -179,6 +189,20 @@ class PuppetLint::Data
       @defined_type_indexes ||= definition_indexes(:DEFINE)
     end
 
+    # Internal: Calculate the positions of all node definitions within the
+    # `tokens` Array.
+    #
+    # Returns an Array of Hashes, each containing:
+    #   :start  - An Integer position in the `tokens` Array pointing to the
+    #             first Token of a defined type definition.
+    #   :end    - An Integer position in the `tokens` Array pointing to the last
+    #             Token of a defined type definition.
+    #   :tokens - An Array consisting of all the Token objects that make up the
+    #             defined type.
+    def node_indexes
+      @node_indexes ||= definition_indexes(:NODE)
+    end
+
     # Internal: Calculate the positions of all the specified defintion types
     # within the `tokens` Array.
     #
@@ -230,6 +254,161 @@ class PuppetLint::Data
         end
       end
       result
+    end
+
+    # Internal: Calculate the positions of all function calls within
+    # `tokens` Array.
+    #
+    # Returns an Array of Hashes, each containing:
+    #   :start  - An Integer position in the `tokens` Array pointing to the
+    #             first Token of a function call
+    #   :end    - An Integer position in the `tokens` Array pointing to the last
+    #             Token of a function call
+    #   :tokens - An Array consisting of all the Token objects that make up the
+    #             function call.
+    def function_indexes
+      @function_indexes ||= Proc.new do
+        functions = []
+        tokens.each_with_index do |token, token_idx|
+          if token.type == :NAME && \
+            (token_idx == 0 || (token_idx == 1 && tokens[0].type == :WHITESPACE) || token.prev_token.type == :NEWLINE || token.prev_token.type == :INDENT || \
+              # function in a function
+              (token.prev_code_token && token.prev_code_token.type == :LPAREN))
+
+              # Hash key
+              next if token.next_code_token && token.next_code_token.type == :FARROW
+
+              level = 0
+              real_idx = 0
+              in_paren = false
+              tokens[token_idx+1..-1].each_with_index do |cur_token, cur_token_idx|
+                break if level == 0 && in_paren
+                break if level == 0 && cur_token.type == :NEWLINE
+
+                if cur_token.type == :LPAREN
+                  level += 1
+                  in_paren = true
+                end
+                level -= 1 if cur_token.type == :RPAREN
+                real_idx = token_idx + 1 + cur_token_idx
+              end
+
+              functions << {
+                :start  => token_idx,
+                :end    => real_idx,
+                :tokens => tokens[token_idx..real_idx],
+              }         
+          end
+        end
+        functions
+      end.call
+    end
+
+    # Internal: Calculate the positions of all array values within
+    # `tokens` Array.
+    #
+    # Returns an Array of Hashes, each containing:
+    #   :start  - An Integer position in the `tokens` Array pointing to the
+    #             first Token of an array value
+    #   :end    - An Integer position in the `tokens` Array pointing to the last
+    #             Token of an array value
+    #   :tokens - An Array consisting of all the Token objects that make up the
+    #             array value.
+    def array_indexes
+      @array_indexes ||= Proc.new do
+        arrays = []
+        tokens.each_with_index do |token, token_idx|
+          if token.type == :LBRACK
+            real_idx = 0
+            tokens[token_idx+1..-1].each_with_index do |cur_token, cur_token_idx|
+              real_idx = token_idx + 1 + cur_token_idx
+              break if cur_token.type == :RBRACK
+            end
+
+            # Ignore resource references
+            next if token.prev_code_token && \
+              token.prev_code_token.type == :CLASSREF
+            arrays << {
+              :start  => token_idx,
+              :end    => real_idx,
+              :tokens => tokens[token_idx..real_idx],
+            }
+          end
+        end
+        arrays
+      end.call
+    end
+
+    # Internal: Calculate the positions of all hash values within
+    # `tokens` Array.
+    #
+    # Returns an Array of Hashes, each containing:
+    #   :start  - An Integer position in the `tokens` Array pointing to the
+    #             first Token of an hash value
+    #   :end    - An Integer position in the `tokens` Array pointing to the last
+    #             Token of an hash value
+    #   :tokens - An Array consisting of all the Token objects that make up the
+    #             hash value.
+    def hash_indexes
+      @hash_indexes ||= Proc.new do
+        hashes = []
+        tokens.each_with_index do |token, token_idx|
+          next unless token.prev_code_token
+          next unless [:EQUALS, :ISEQUAL, :FARROW, :LPAREN].include? token.prev_code_token.type
+          if token.type == :LBRACE
+            level = 0
+            real_idx = 0
+            tokens[token_idx+1..-1].each_with_index do |cur_token, cur_token_idx|
+              real_idx = token_idx + 1 + cur_token_idx
+
+              level += 1 if cur_token.type == :LBRACE
+              level -= 1 if cur_token.type == :RBRACE
+              break if level < 0
+            end
+
+            hashes << {
+              :start  => token_idx,
+              :end    => real_idx,
+              :tokens => tokens[token_idx..real_idx],
+            }
+          end
+        end
+        hashes
+      end.call
+    end
+
+    # Internal: Calculate the positions of all defaults declarations within
+    # `tokens` Array.
+    #
+    # Returns an Array of Hashes, each containing:
+    #   :start  - An Integer position in the `tokens` Array pointing to the
+    #             first Token of the defaults declaration
+    #   :end    - An Integer position in the `tokens` Array pointing to the last
+    #             Token of the defaults declaration
+    #   :tokens - An Array consisting of all the Token objects that make up the
+    #             defaults declaration.
+    def defaults_indexes
+      @defaults_indexes ||= Proc.new do
+        defaults = []
+        tokens.each_with_index do |token, token_idx|
+          if token.type == :CLASSREF && token.next_code_token && \
+            token.next_code_token.type == :LBRACE
+            real_idx = 0
+
+            tokens[token_idx+1..-1].each_with_index do |cur_token, cur_token_idx|
+              real_idx = token_idx + 1 + cur_token_idx
+              break if cur_token.type == :RBRACE
+            end
+
+            defaults << {
+              :start  => token_idx,
+              :end    => real_idx,
+              :tokens => tokens[token_idx..real_idx],
+            }
+          end
+        end
+        defaults
+      end.call
     end
 
     # Internal: Finds all the tokens that make up the defined type or class

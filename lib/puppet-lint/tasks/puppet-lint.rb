@@ -26,6 +26,7 @@ class PuppetLint
     attr_accessor :with_context
     attr_accessor :fix
     attr_accessor :show_ignored
+    attr_accessor :relative
 
     # Public: Initialise a new PuppetLint::RakeTask.
     #
@@ -49,6 +50,8 @@ class PuppetLint
 
       task_block.call(*[self, args].slice(0, task_block.arity)) if task_block
 
+      # clear any (auto-)pre-existing task
+      Rake::Task[@name].clear if Rake::Task.task_defined?(@name)
       task @name do
         PuppetLint::OptParser.build
 
@@ -56,9 +59,13 @@ class PuppetLint
           PuppetLint.configuration.send("disable_#{check}")
         end
 
-        %w{with_filename fail_on_warnings error_level log_format with_context fix show_ignored}.each do |config|
+        %w{with_filename fail_on_warnings error_level log_format with_context fix show_ignored relative}.each do |config|
           value = instance_variable_get("@#{config}")
           PuppetLint.configuration.send("#{config}=".to_sym, value) unless value.nil?
+        end
+
+        if PuppetLint.configuration.ignore_paths
+          @ignore_paths = PuppetLint.configuration.ignore_paths
         end
 
         RakeFileUtils.send(:verbose, true) do
@@ -71,6 +78,10 @@ class PuppetLint
             linter.file = puppet_file
             linter.run
             linter.print_problems
+
+            if PuppetLint.configuration.fix && !linter.problems.any? { |e| e[:check] == :syntax }
+              IO.write(puppet_file, linter.manifest)
+            end
           end
           abort if linter.errors? || (
             linter.warnings? && PuppetLint.configuration.fail_on_warnings

@@ -45,7 +45,7 @@ PuppetLint.new_check(:autoloader_layout) do
 end
 
 # Public: Check the manifest tokens for any classes or defined types that
-# have a dash in their name and record a warning for each instance found.
+# have a dash in their name and record an error for each instance found.
 PuppetLint.new_check(:names_containing_dash) do
   def check
     (class_indexes + defined_type_indexes).each do |class_idx|
@@ -56,7 +56,7 @@ PuppetLint.new_check(:names_containing_dash) do
           obj_type = 'defined type'
         end
 
-        notify :warning, {
+        notify :error, {
           :message => "#{obj_type} name containing a dash",
           :line    => class_idx[:name_token].line,
           :column  => class_idx[:name_token].column,
@@ -83,13 +83,14 @@ PuppetLint.new_check(:class_inherits_from_params_class) do
     end
   end
 end
+PuppetLint.configuration.send('disable_class_inherits_from_params_class')
 
 # Public: Test the manifest tokens for any parameterised classes or defined
 # types that take parameters and record a warning if there are any optional
 # parameters listed before required parameters.
 PuppetLint.new_check(:parameter_order) do
   def check
-    defined_type_indexes.each do |class_idx|
+    (class_indexes + defined_type_indexes).each do |class_idx|
       unless class_idx[:param_tokens].nil?
         paren_stack = []
         class_idx[:param_tokens].each_with_index do |token, i|
@@ -197,6 +198,9 @@ PuppetLint.new_check(:variable_scope) do
     'stage',
     'subscribe',
     'tag',
+    'facts',
+    'trusted',
+    'server_facts',
   ]
   POST_VAR_TOKENS = Set[:COMMA, :EQUALS, :RPAREN]
 
@@ -263,17 +267,19 @@ PuppetLint.new_check(:variable_scope) do
       msg = "top-scope variable being used without an explicit namespace"
       referenced_variables.each do |token|
         unless future_parser_scopes[token.line].nil?
-          next if future_parser_scopes[token.line].include?(token.value)
+          next if future_parser_scopes[token.line].include?(token.value.gsub(/\[.+\]\Z/, ''))
         end
 
         unless token.value.include? '::'
-          unless variables_in_scope.include? token.value.gsub(/\[.+\]\Z/, '')
-            unless token.value =~ /\A\d+\Z/
-              notify :warning, {
-                :message => msg,
-                :line    => token.line,
-                :column  => token.column,
-              }
+          unless token.value =~ /^(facts|trusted)\[.+\]/
+            unless variables_in_scope.include? token.value.gsub(/\[.+\]\Z/, '')
+              unless token.value =~ /\A\d+\Z/
+                notify :warning, {
+                  :message => msg,
+                  :line    => token.line,
+                  :column  => token.column,
+                }
+              end
             end
           end
         end

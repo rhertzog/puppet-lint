@@ -579,6 +579,32 @@ describe PuppetLint::Lexer do
     end
   end
 
+  context ':TYPE' do
+    it 'should match Data Types' do
+      token = @lexer.tokenise('Integer').first
+      expect(token.type).to eq(:TYPE)
+      expect(token.value).to eq('Integer')
+    end
+
+    it 'should match Catalog Types' do
+      token = @lexer.tokenise('Resource').first
+      expect(token.type).to eq(:TYPE)
+      expect(token.value).to eq('Resource')
+    end
+
+    it 'should match Abstract Types' do
+      token = @lexer.tokenise('Collection').first
+      expect(token.type).to eq(:TYPE)
+      expect(token.value).to eq('Collection')
+    end
+
+    it 'should match Platform Types' do
+      token = @lexer.tokenise('Callable').first
+      expect(token.type).to eq(:TYPE)
+      expect(token.value).to eq('Callable')
+    end
+  end
+
   context ':CLASSREF' do
     it 'should match single capitalised alphanumeric term' do
       token = @lexer.tokenise('One').first
@@ -687,7 +713,7 @@ describe PuppetLint::Lexer do
     it 'should match comments on multiple lines' do
       token = @lexer.tokenise("/* foo\n * bar\n*/").first
       expect(token.type).to eq(:MLCOMMENT)
-      expect(token.value).to eq("foo\nbar")
+      expect(token.value).to eq("foo\n bar\n")
     end
   end
 
@@ -765,6 +791,18 @@ describe PuppetLint::Lexer do
       token = @lexer.tokenise('/this is \/ a regex/').first
       expect(token.type).to eq(:REGEX)
       expect(token.value).to eq('this is \\/ a regex')
+    end
+
+    it 'should be allowed as a param to a data type' do
+      tokens = @lexer.tokenise('Foo[/bar/]')
+      expect(tokens[2].type).to eq(:REGEX)
+      expect(tokens[2].value).to eq('bar')
+    end
+
+    it 'should be allowed as a param to an optional data type' do
+      tokens = @lexer.tokenise('Optional[Regexp[/^puppet/]]')
+      expect(tokens[4].type).to eq(:REGEX)
+      expect(tokens[4].value).to eq('^puppet')
     end
 
     it 'should not match chained division' do
