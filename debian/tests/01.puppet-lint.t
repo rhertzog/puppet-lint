@@ -13,7 +13,7 @@ test_expect_success "ok.pp" "
 "
 
 test_expect_success "long-line.pp" "
-  puppet-lint ${fixtures}/long-line.pp | grep 'WARNING: line has more than 80 characters'
+  puppet-lint ${fixtures}/long-line.pp | grep 'WARNING: line has more than 140 characters'
 "
 
 test_done
