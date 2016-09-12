@@ -26,7 +26,7 @@ end
 PuppetLint.new_check(:trailing_whitespace) do
   def check
     tokens.select { |token|
-      token.type == :WHITESPACE
+      [:WHITESPACE, :INDENT].include?(token.type)
     }.select { |token|
       token.next_token.nil? || token.next_token.type == :NEWLINE
     }.each do |token|
@@ -48,10 +48,29 @@ PuppetLint.new_check(:trailing_whitespace) do
   end
 end
 
-# Public: Test the raw manifest string for lines containing more than 80
+# Public: Test the raw manifest string for lines containing more than 140
 # characters and record a warning for each instance found.  The only exceptions
 # to this rule are lines containing URLs and template() calls which would hurt
 # readability if split.
+PuppetLint.new_check(:'140chars') do
+  def check
+    manifest_lines.each_with_index do |line, idx|
+      unless line =~ /:\/\// || line =~ /template\(/
+        if line.scan(/./mu).size > 140
+          notify :warning, {
+            :message => 'line has more than 140 characters',
+            :line    => idx + 1,
+            :column  => 140,
+          }
+        end
+      end
+    end
+  end
+end
+
+# Public: Test the raw manifest string for lines containing more than 80
+# characters. This is DISABLED by default and behaves like the default
+# 140chars check by excepting URLs and template() calls.
 PuppetLint.new_check(:'80chars') do
   def check
     manifest_lines.each_with_index do |line, idx|
@@ -67,6 +86,7 @@ PuppetLint.new_check(:'80chars') do
     end
   end
 end
+PuppetLint.configuration.send("disable_80chars")
 
 # Public: Check the manifest tokens for any indentation not using 2 space soft
 # tabs and record an error for each instance found.
@@ -112,7 +132,8 @@ PuppetLint.new_check(:arrow_alignment) do
         if token.type == :FARROW
           (level_tokens[indent_depth_idx] ||= []) << token
           prev_indent_token = resource_tokens[0..idx].rindex { |t| t.type == :INDENT }
-          indent_length = resource_tokens[prev_indent_token].to_manifest.length + token.prev_code_token.to_manifest.length + 2
+          indent_token_length = prev_indent_token.nil? ? 0 : resource_tokens[prev_indent_token].to_manifest.length
+          indent_length = indent_token_length + token.prev_code_token.to_manifest.length + 2
 
           if indent_depth[indent_depth_idx] < indent_length
             indent_depth[indent_depth_idx] = indent_length
@@ -122,12 +143,12 @@ PuppetLint.new_check(:arrow_alignment) do
           indent_depth_idx += 1
           indent_depth << 0
           level_tokens[indent_depth_idx] ||= []
-        elsif token.type == :RBRACE
+        elsif token.type == :RBRACE || token.type == :SEMIC
           level_tokens[indent_depth_idx].each do |arrow_tok|
-            unless arrow_tok.column == indent_depth[indent_depth_idx]
+            unless arrow_tok.column == indent_depth[indent_depth_idx] || level_tokens[indent_depth_idx].size == 1
               arrows_on_line = level_tokens[indent_depth_idx].select { |t| t.line == arrow_tok.line }
               notify :warning, {
-                :message        => 'indentation of => is not properly aligned',
+                :message        => "indentation of => is not properly aligned (expected in column #{indent_depth[indent_depth_idx]}, but found it in column #{arrow_tok.column})",
                 :line           => arrow_tok.line,
                 :column         => arrow_tok.column,
                 :token          => arrow_tok,

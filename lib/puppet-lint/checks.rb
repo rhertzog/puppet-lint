@@ -20,7 +20,7 @@ class PuppetLint::Checks
   def load_data(path, content)
     lexer = PuppetLint::Lexer.new
     PuppetLint::Data.path = path
-    PuppetLint::Data.manifest_lines = content.split("\n")
+    PuppetLint::Data.manifest_lines = content.split("\n", -1)
     begin
       PuppetLint::Data.tokens = lexer.tokenise(content)
       PuppetLint::Data.parse_control_comments
@@ -58,14 +58,10 @@ class PuppetLint::Checks
       problems = klass.run
 
       if PuppetLint.configuration.fix
-        checks_run << klass
+        @problems.concat(klass.fix_problems)
       else
         @problems.concat(problems)
       end
-    end
-
-    checks_run.each do |check|
-      @problems.concat(check.fix_problems)
     end
 
     @problems

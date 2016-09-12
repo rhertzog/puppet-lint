@@ -3,6 +3,8 @@
 .rbenv-version
 .ruby-version
 Gemfile.lock
-vendor/gems
+vendor/
 coverage/
 *.swp
+/_site/
+.idea
