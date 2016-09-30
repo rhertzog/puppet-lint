@@ -4,6 +4,7 @@ puppet-lint (2.0.2-1) UNRELEASED; urgency=medium
   * Import upstream release 2.0.2
   * Update debian/copyright
   * Update the DEP-8 tests: increase the long line to 140 characters
+  * Add a patch to fix the gemspec: don't use git-ls
 
  -- Sophie Brun <sophie@freexian.com>  Mon, 12 Sep 2016 15:12:21 +0200
 
