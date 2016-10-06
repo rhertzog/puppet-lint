@@ -7,7 +7,7 @@ Last-Update: 2016-09-30
 This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 --- a/puppet-lint.gemspec
 +++ b/puppet-lint.gemspec
-@@ -9,9 +9,8 @@ Gem::Specification.new do |s|
+@@ -9,9 +9,9 @@ Gem::Specification.new do |s|
    s.description = 'Checks your Puppet manifests against the Puppetlabs
    style guide and alerts you to any discrepancies.'
  
@@ -16,6 +16,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 -  s.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
 +  s.files = Dir.glob('**/*')
 +  s.test_files = Dir.glob('spec/**/*')
++  s.executables = Dir.glob('bin/*').map{ |f| File.basename(f) }
    s.require_paths = ["lib"]
  
    s.add_development_dependency 'github_changelog_generator'
